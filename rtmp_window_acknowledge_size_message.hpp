@@ -1,17 +1,16 @@
 #pragma once
-#include<string>
 #include<memory>
-
 namespace mms {
 	class RtmpMessage;
-	class RtmpSetChunkSizeMessage {
+	class RtmpWindowAcknwledgeSizeMessage {
 	public:
-		RtmpSetChunkSizeMessage(size_t s);
-		RtmpSetChunkSizeMessage();
+	public:
+		RtmpWindowAcknwledgeSizeMessage(size_t s);
+		RtmpWindowAcknwledgeSizeMessage();
 		int32_t decode(std::shared_ptr<RtmpMessage> rtmp_msg);
 		std::shared_ptr<RtmpMessage> encode() const;
 
 	public:
-		int32_t chunk_size_;
+		size_t acknowledge_window_size_{ 5 * 1024 * 1024 };
 	};
 }

@@ -36,7 +36,7 @@ RtmpChunkProtocol::~RtmpChunkProtocol() {
 
 boost::asio::awaitable<int32_t> RtmpChunkProtocol::cycle_recv_rtmp_message(const std::function<boost::asio::awaitable<bool>(std::shared_ptr<RtmpMessage>&)>& recv_handler) {
 	recv_handler_ = recv_handler;
-
+	spdlog::info("cycle_recv_rtmp_message call");
 	while (1) {
 		if (MAX_BUFFER_BYTES - recv_len_ <= 0) co_return -1;
 
@@ -44,8 +44,9 @@ boost::asio::awaitable<int32_t> RtmpChunkProtocol::cycle_recv_rtmp_message(const
 		if (s < 0) co_return s;
 
 		recv_len_ += s;
-
+		spdlog::info("step while 1");
 		while (1) {
+			spdlog::info("step while 2");
 			auto consumed = co_await process_recv_buffer();
 
 			if (consumed == 0) break;
@@ -461,6 +462,7 @@ boost::asio::awaitable<int32_t> RtmpChunkProtocol::process_recv_buffer() {
 }
 
 bool RtmpChunkProtocol::is_protocol_control_message(std::shared_ptr<RtmpMessage> msg) {
+	spdlog::info("is_protocol_control_message: {}", msg->chunk_stream_id_);
 	if (msg->chunk_stream_id_ != RTMP_CHUNK_ID_PROTOCOL_CONTROL_MESSAGE) {
 		return false;
 	}
@@ -482,6 +484,7 @@ bool RtmpChunkProtocol::is_protocol_control_message(std::shared_ptr<RtmpMessage>
 
 
 boost::asio::awaitable<bool> RtmpChunkProtocol::handle_protocol_control_message(std::shared_ptr<RtmpMessage> msg) {
+	spdlog::info("handle_protocol_control_message, message_type_id:{}", msg->message_type_id_);
 	switch (msg->message_type_id_)
 	{
 	case RTMP_CHUNK_MESSAGE_TYPE_SET_CHUNK_SIZE:{
@@ -509,6 +512,7 @@ bool RtmpChunkProtocol::handle_set_chunk_size(std::shared_ptr<RtmpMessage> msg) 
 	}
 	in_chunk_size_ = cmd.chunk_size_;
 	spdlog::debug("set in chunk size:{}", in_chunk_size_);
+	spdlog::info("set in chunk size:{}", in_chunk_size_);
 	return true;
 }
 
